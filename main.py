@@ -34,7 +34,7 @@ hide_st_style = """
               </style>
               """
 
-st.markdown(hide_st_style, unsafe_allow_html=True)   
+#st.markdown(hide_st_style, unsafe_allow_html=True)   
 
 # Loading Lottie Files
 def load_lottiefile(filepath: str):
@@ -154,6 +154,37 @@ elif menu == "Prescrizioni":
 else:
   st.title(":rainbow[Informazioni]")
   st.write("---")
+  st.sidebar.markdown("""
+      ### AI Medical Assistant
+      **Developed by**: ROSARIOSoft
+
+      [📧 Contattaci](mailto:r.moscato@ilivetech.it)
+
+      © 2023 All rights reserved.
+
+      ---
+
+      Powered by OpenAI and Embedchain.  
+      *Prompting is the Key!*
+  """, unsafe_allow_html=True)
+
+  st.markdown("""
+      ## Come utilizzare l'AI Medical Assistant
+      ### Passi da seguire:
+      1. Seleziona dal **menu a tendina** nella barra laterale il tipo di operazione che desideri compiere:
+          - **Home**: per tornare alla schermata principale dell'applicazione.
+          - **Analisi**: per caricare e analizzare i risultati di analisi cliniche.
+          - **Diagnosi**: per consultare e valutare le diagnosi.
+          - **Prescrizioni**: per gestire le prescrizioni mediche.
+      2. A seconda della scelta effettuata, ti saranno fornite le istruzioni specifiche su come procedere nella **schermata principale**.
+      3. Per alcune funzionalità potrebbe essere necessario **caricare dei file** (come per esempio le prescrizioni mediche in formato PDF).
+      4. Attendi che l'elaborazione sia completata e leggi o scarica i risultati proposti.
+      ### Note aggiuntive:
+      - Questa applicazione è sostenuta da tecnologie di intelligenza artificiale per l'elaborazione del linguaggio naturale.
+      - Sarà possibile scaricare i risultati delle analisi, delle diagnosi o delle prescrizioni in formato PDF se necessario.
+      - Per qualsiasi domanda o chiarimento, utilizza il link per contattare il supporto presente nella barra laterale sotto "Contattaci".
+      ### Buon lavoro e benvenuti nell'era dell'assistenza medica supportata dall'AI!
+  """, unsafe_allow_html=True)
 
 
 
