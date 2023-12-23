@@ -1,12 +1,14 @@
-import streamlit as st
-from streamlit_lottie import st_lottie
-import json
 from embedchain import App
+import fitz  # PyMuPDF
+from io import BytesIO
+import json
 from reportlab.lib.pagesizes import letter
 from reportlab.pdfgen import canvas
 from reportlab.lib.styles import getSampleStyleSheet
 from reportlab.platypus import SimpleDocTemplate, Paragraph
-from io import BytesIO
+import streamlit as st
+from streamlit_lottie import st_lottie
+
 
 versione = "0.0.2"
 
@@ -94,6 +96,14 @@ elif menu == "Prescrizioni":
   if prescrizione_pdf is not None and not st.session_state.get('file_processed', False):
     st.sidebar.success("File caricato con successo")
 
+    # Converto la prima pagina del PDF in un'immagine di anteprima
+    with fitz.open(stream=prescrizione_pdf.getvalue(), filetype="pdf") as pdf_file:
+      page = pdf_file[0]  # recupero la prima pagina
+      pix = page.get_pixmap()  # converto la pagina in immagine
+      pix.save("prescrizione_image.png")  # salvo l'immagine come PNG
+      st.sidebar.image("prescrizione_image.png", caption="Anteprima prescrizione")    
+      
+    # Salvo il file PDF in un buffer
     with open("prescrizioni.pdf", "wb") as temp_file:
       temp_file.write(prescrizione_pdf.getbuffer())
     
