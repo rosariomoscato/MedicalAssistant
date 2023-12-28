@@ -10,7 +10,7 @@ import streamlit as st
 from streamlit_lottie import st_lottie
 
 
-versione = "0.0.5"
+versione = "0.0.4"
 
 # Configurazione Pagina
 st.set_page_config(
@@ -46,18 +46,8 @@ def prescrizione_final_answer(bot, initial_answer):
                      "tieni conto della patologia sospetta e applica le buone pratiche. "
                      "Se presente rispondi con il nome del paziente. Indica la patologia sospetta e gli esami prescritti. Dimmi se gli esami prescritti sono corretti. "
                      "Per essere assolutamente sicuri circa la patologia consiglia ulteriori indagini da fare indicandole chiaramente. "
-                     "Nella risposta non includere che sei un medico e non includere mai frasi del tipo 'Non riesco a leggere il file per ulteriori indagini specifiche'. Rispondi sempre in italiano. Inizia sempre con 'La prescrizione sottoposta indica che:'")
-  return bot.query(follow_up_query)
-
-
-def diagnosi_final_answer(bot, initial_answer):
-  follow_up_query = ("Considerando che" + initial_answer + " e che sei un medico con anni di esperienza: "
-                     "tieni conto della patologia sospetta e applica le buone pratiche. "
-                     "Interpreta il referto e spiegamelo dettagliatamente come se fossi una persona di 14 anni. "
-                     "Considerando tre livelli di urgenza pari a 'estrema', 'media' e 'bassa' "
-                     "indica quanto è urgente contattare un medico. Indica anche in maniera precisa che tipo di medico specialista va contattato. "
-                     "Infine suggerisci ulteriori indagini da fare indicandole chiaramente. "
-                     "Rispondi sempre in italiano. Inizia sempre con 'La diagnosi sottoposta indica che:'")
+                     "Nella risposta non includere che sei un medico e non includere mai frasi del tipo 'Non riesco a leggere il file per ulteriori indagini specifiche'. Rispondi sempre in italiano. "
+                     )
   return bot.query(follow_up_query)
 
 def pulisci_sessione():
@@ -95,72 +85,6 @@ elif menu == "Analisi":
 elif menu == "Diagnosi":
   st.title(":rainbow[Lettura] :blue[Diagnosi]")
   st.write("---")
-
-  diagnosi_pdf = st.sidebar.file_uploader("Carica il file della diagnosi in formato PDF", type="pdf")
-  
-  if diagnosi_pdf is not None and not st.session_state.get('file_processed', False):
-    st.sidebar.success("File caricato con successo")
-  
-    # Converto la prima pagina del PDF in un'immagine di anteprima
-    with fitz.open(stream=diagnosi_pdf.getvalue(), filetype="pdf") as pdf_file:
-      page = pdf_file[0]  # recupero la prima pagina
-      pix = page.get_pixmap()  # converto la pagina in immagine
-      pix.save("diagnosi_image.png")  # salvo l'immagine come PNG
-      st.sidebar.image("diagnosi_image.png", caption="Anteprima diagnosi")    
-  
-    # Salvo il file PDF in un buffer
-    with open("diagnosi.pdf", "wb") as temp_file:
-      temp_file.write(diagnosi_pdf.getbuffer())
-  
-    with st.spinner("Elaborazione in corso..."):
-      diagnosi_bot = App()
-      diagnosi_bot.add("diagnosi.pdf", data_type='pdf_file')
-  
-      #input_query = "Di cosa parla il file?"
-      input_query = "Riassumi dettagliatamente il contenuto del file includendo tutte le informazioni rilevanti."
-      answer = diagnosi_bot.query(input_query)  
-      try:
-        final_answer = diagnosi_final_answer(diagnosi_bot, answer)
-        st.subheader("Risposta:")
-        st.write(f"{final_answer}\n\n")
-        pulisci_sessione()
-      except Exception as e:
-          st.error(f"Errore durante la diagnosi: {e}")
-          pulisci_sessione()
-  
-      # Creo un BytesIO buffer per il file PDF
-      pdf_buffer = BytesIO()
-      # Creo una SimpleDocTemplate instance
-      pdf_doc = SimpleDocTemplate(pdf_buffer, pagesize=letter)
-      # Creo uno StyleSheet
-      styles = getSampleStyleSheet()
-      normal_style = styles['Normal']
-      # Create un Paragraph object con la final_answer, e aggiungo alcuni breaks
-      final_answer_paragraph = Paragraph("<img src='items/dw_logo.png' width='90' height='12' /><br/><br/><br/>Risposta Diagnosi<br/><br/>"+final_answer.replace('\n', '<br/>'), normal_style)
-  
-      # Creo il PDF
-      pdf_elements = [final_answer_paragraph]
-      pdf_doc.build(pdf_elements)
-  
-      # Recupero il contenuto del PDF dal BytesIO buffer
-      pdf_buffer.seek(0)
-      risposta_diagnosi = pdf_buffer.getvalue()
-  
-      st.session_state['file_processed'] = True
-  
-      # Download Button
-      st.download_button(label="Download Risposta",
-         data=risposta_diagnosi,
-         file_name="risposta_diagnosi.pdf",
-         mime="application/pdf")
-  
-  
-  elif diagnosi_pdf is None and st.session_state.get('file_processed', False):
-    st.session_state.pop('file_processed')
-  
-  else:
-    st.sidebar.error("Caricare un file PDF per procedere")
-  
 
 # Sezione PRESCRIZIONI
 elif menu == "Prescrizioni":
