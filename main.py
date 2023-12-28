@@ -10,7 +10,7 @@ import streamlit as st
 from streamlit_lottie import st_lottie
 
 
-versione = "0.0.3"
+versione = "0.0.4"
 
 # Configurazione Pagina
 st.set_page_config(
@@ -44,10 +44,10 @@ def load_lottiefile(filepath: str):
 def prescrizione_final_answer(bot, initial_answer):
   follow_up_query = ("Considerando che" + initial_answer + " e che sei un medico con anni di esperienza: "
                      "tieni conto della patologia sospetta e applica le buone pratiche. "
-                     "Rispondi con il nome del paziente e della patologia sospetta e dimmi se gli esami prescritti sono corretti. "
+                     "Se presente rispondi con il nome del paziente. Indica la patologia sospetta e gli esami prescritti. Dimmi se gli esami prescritti sono corretti. "
                      "Per essere assolutamente sicuri circa la patologia consiglia ulteriori indagini da fare indicandole chiaramente. "
-                     "Nella risposta non includere che sei un medico. Rispondi sempre in italiano. "
-                     "Se non puoi rispondere a domande, rispondi con 'Non riesco a leggere il file'.")
+                     "Nella risposta non includere che sei un medico e non includere mai frasi del tipo 'Non riesco a leggere il file per ulteriori indagini specifiche'. Rispondi sempre in italiano. "
+                     )
   return bot.query(follow_up_query)
 
 def pulisci_sessione():
@@ -110,12 +110,18 @@ elif menu == "Prescrizioni":
     with st.spinner("Elaborazione in corso..."):
       prescrizioni_bot = App()
       prescrizioni_bot.add("prescrizioni.pdf", data_type='pdf_file')
-    
-      input_query = "Di cosa parla il file?"
-      answer = prescrizioni_bot.query(input_query)      
-      final_answer = prescrizione_final_answer(prescrizioni_bot, answer)
-      st.subheader("Risposta:")
-      st.write(f"{final_answer}\n\n")
+
+      #input_query = "Di cosa parla il file?"
+      input_query = "Riassumi il contenuto del file includendo se esiste il nome del paziente, la patologia sospetta e gli esami prescritti."
+      answer = prescrizioni_bot.query(input_query)  
+      try:
+        final_answer = prescrizione_final_answer(prescrizioni_bot, answer)
+        st.subheader("Risposta:")
+        st.write(f"{final_answer}\n\n")
+        pulisci_sessione()
+      except Exception as e:
+          st.error(f"Errore durante la prescrizione: {e}")
+          pulisci_sessione()
 
       # Creo un BytesIO buffer per il file PDF
       pdf_buffer = BytesIO()
