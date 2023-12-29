@@ -54,7 +54,7 @@ def diagnosi_final_answer(bot, initial_answer):
   follow_up_query = ("Considerando che" + initial_answer + " e che sei un medico con anni di esperienza: "
                      "tieni conto della patologia sospetta e applica le buone pratiche. "
                      "Interpreta il referto e spiegamelo dettagliatamente come se fossi una persona di 14 anni. "
-                     "Considerando tre livelli di urgenza pari a 'estrema', 'media' e 'bassa' "
+                     "Considerando tre livelli di urgenza pari a 'alta', 'media' e 'bassa' "
                      "indica quanto è urgente contattare un medico. Indica anche in maniera precisa che tipo di medico specialista va contattato. "
                      "Infine suggerisci ulteriori indagini da fare indicandole chiaramente. "
                      "Nella risposta non includere che sei un medico e non includere mai frasi del tipo 'Non riesco a leggere il file per ulteriori indagini specifiche'. "
@@ -76,6 +76,9 @@ def analisi_final_answer(bot, initial_answer):
 
 def pulisci_sessione():
   st.session_state.clear()
+
+def pulisci_db(bot):
+  bot.reset()
 
 # Creazione Sidebar
 st.sidebar.image("items/dw_logo.png", width=200)
@@ -137,9 +140,11 @@ elif menu == "Analisi":
         st.write(f"{final_answer}\n\n")
         #st.write(f"{answer}\n\n")
         pulisci_sessione()
+        pulisci_db(analisi_bot)
       except Exception as e:
         st.error(f"Errore durante le analisi: {e}")
         pulisci_sessione()
+        pulisci_db(analisi_bot)
       
       # Creo un BytesIO buffer per il file PDF
       pdf_buffer = BytesIO()
@@ -210,9 +215,11 @@ elif menu == "Diagnosi":
         st.subheader("Risposta:")
         st.write(f"{final_answer}\n\n")
         pulisci_sessione()
+        pulisci_db(diagnosi_bot)
       except Exception as e:
           st.error(f"Errore durante la diagnosi: {e}")
           pulisci_sessione()
+          pulisci_db(diagnosi_bot)
   
       # Creo un BytesIO buffer per il file PDF
       pdf_buffer = BytesIO()
@@ -283,9 +290,12 @@ elif menu == "Prescrizioni":
         st.subheader("Risposta:")
         st.write(f"{final_answer}\n\n")
         pulisci_sessione()
+        pulisci_db(prescrizioni_bot)
+      
       except Exception as e:
-          st.error(f"Errore durante la prescrizione: {e}")
-          pulisci_sessione()
+        st.error(f"Errore durante la prescrizione: {e}")
+        pulisci_sessione()
+        pulisci_db(prescrizioni_bot)
 
       # Creo un BytesIO buffer per il file PDF
       pdf_buffer = BytesIO()
