@@ -10,7 +10,7 @@ import streamlit as st
 from streamlit_lottie import st_lottie
 
 
-versione = "0.0.6"
+versione = "0.0.5"
 
 # Configurazione Pagina
 st.set_page_config(
@@ -34,7 +34,7 @@ hide_st_style = """
               </style>
               """
 
-st.markdown(hide_st_style, unsafe_allow_html=True)   
+#st.markdown(hide_st_style, unsafe_allow_html=True)   
 
 # Loading Lottie Files
 def load_lottiefile(filepath: str):
@@ -57,21 +57,7 @@ def diagnosi_final_answer(bot, initial_answer):
                      "Considerando tre livelli di urgenza pari a 'estrema', 'media' e 'bassa' "
                      "indica quanto è urgente contattare un medico. Indica anche in maniera precisa che tipo di medico specialista va contattato. "
                      "Infine suggerisci ulteriori indagini da fare indicandole chiaramente. "
-                     "Nella risposta non includere che sei un medico e non includere mai frasi del tipo 'Non riesco a leggere il file per ulteriori indagini specifiche'. "
                      "Rispondi sempre in italiano. Inizia sempre con 'La diagnosi sottoposta indica che:'")
-  return bot.query(follow_up_query)
-  
-
-def analisi_final_answer(bot, initial_answer):
-  follow_up_query = ("Considerando che" + initial_answer + " e che sei un medico con anni di esperienza: "
-                     "tieni conto dei risultati acquisiti e applica le buone pratiche. "
-                     "Interpreta le analisi e spiegamele dettagliatamente come se fossi una persona di 14 anni. "
-                     "Per ogni esame dimmi cosa significa il suo valore e se è corretto. "
-                     "In caso di valori non corretti indica quali potrebbero essere le loro cause. "
-                     "In caso di valori non corretti, suggerisci ulteriori indagini da fare indicandole chiaramente."
-                     "Prima di chiudere dai delle indicazioni sintetiche su un coretto stile di vita. "
-                     "Nella risposta non includere che sei un medico e non includere mai frasi del tipo 'Non riesco a leggere il file per ulteriori indagini specifiche'. "
-                     "Rispondi sempre in italiano. Inizia sempre con 'Le analisi sottoposte indicano che:'")
   return bot.query(follow_up_query)
 
 def pulisci_sessione():
@@ -105,76 +91,6 @@ elif menu == "Analisi":
   st.title(":rainbow[Lettura] :blue[Analisi]")
   st.write("---")
 
-  analisi_pdf = st.sidebar.file_uploader("Carica il file delle analisi in formato PDF", type="pdf")
-  
-  if analisi_pdf is not None and not st.session_state.get('file_processed', False):
-    st.sidebar.success("File caricato con successo")
-  
-    # Converto la prima pagina del PDF in un'immagine di anteprima
-    with fitz.open(stream=analisi_pdf.getvalue(), filetype="pdf") as pdf_file:
-      page = pdf_file[0]  # recupero la prima pagina
-      pix = page.get_pixmap()  # converto la pagina in immagine
-      pix.save("analisi_image.png")  # salvo l'immagine come PNG
-      st.sidebar.image("analisi_image.png", caption="Anteprima file analisi")    
-
-    # Salvo il file PDF in un buffer
-    with open("analisi.pdf", "wb") as temp_file:
-      temp_file.write(analisi_pdf.getbuffer())
-  
-    with st.spinner("Elaborazione in corso..."):
-      analisi_bot = App()
-      try:
-        analisi_bot.add("analisi.pdf", data_type='pdf_file')
-      except Exception as e:
-        pass
-      input_query = "Sei un operatore sanitario. Leggi il file e per ogni voce memorizza il valore rilevato e l'intervallo di riferimento."
-      #input_query = "Di cosa parla il documento?"
-      answer = analisi_bot.query(input_query)  
-      
-      try:
-        final_answer = analisi_final_answer(analisi_bot, answer)
-        st.subheader("Risposta:")
-        st.write(f"{final_answer}\n\n")
-        #st.write(f"{answer}\n\n")
-        pulisci_sessione()
-      except Exception as e:
-        st.error(f"Errore durante le analisi: {e}")
-        pulisci_sessione()
-      
-      # Creo un BytesIO buffer per il file PDF
-      pdf_buffer = BytesIO()
-      # Creo una SimpleDocTemplate instance
-      pdf_doc = SimpleDocTemplate(pdf_buffer, pagesize=letter)
-      # Creo uno StyleSheet
-      styles = getSampleStyleSheet()
-      normal_style = styles['Normal']
-      # Create un Paragraph object con la final_answer, e aggiungo alcuni breaks
-      final_answer_paragraph = Paragraph("<img src='items/dw_logo.png' width='90' height='12' /><br/><br/><br/>Risposta Diagnosi<br/><br/>"+final_answer.replace('\n', '<br/>'), normal_style)
-
-      # Creo il PDF
-      pdf_elements = [final_answer_paragraph]
-      pdf_doc.build(pdf_elements)
-  
-      # Recupero il contenuto del PDF dal BytesIO buffer
-      pdf_buffer.seek(0)
-      risposta_analisi = pdf_buffer.getvalue()
-  
-      st.session_state['file_processed'] = True
-  
-      # Download Button
-      st.download_button(label="Download Risposta",
-         data=risposta_analisi,
-         file_name="risposta_analisi.pdf",
-         mime="application/pdf")
-
-
-  elif analisi_pdf is None and st.session_state.get('file_processed', False):
-    st.session_state.pop('file_processed')
-
-  else:
-    st.sidebar.error("Caricare un file PDF per procedere")
-
-
 
 elif menu == "Diagnosi":
   st.title(":rainbow[Lettura] :blue[Diagnosi]")
@@ -190,7 +106,7 @@ elif menu == "Diagnosi":
       page = pdf_file[0]  # recupero la prima pagina
       pix = page.get_pixmap()  # converto la pagina in immagine
       pix.save("diagnosi_image.png")  # salvo l'immagine come PNG
-      st.sidebar.image("diagnosi_image.png", caption="Anteprima file diagnosi")    
+      st.sidebar.image("diagnosi_image.png", caption="Anteprima diagnosi")    
   
     # Salvo il file PDF in un buffer
     with open("diagnosi.pdf", "wb") as temp_file:
@@ -198,10 +114,8 @@ elif menu == "Diagnosi":
   
     with st.spinner("Elaborazione in corso..."):
       diagnosi_bot = App()
-      try:
-        diagnosi_bot.add("diagnosi.pdf", data_type='pdf_file')
-      except Exception as e:
-        pass
+      diagnosi_bot.add("diagnosi.pdf", data_type='pdf_file')
+  
       #input_query = "Di cosa parla il file?"
       input_query = "Riassumi dettagliatamente il contenuto del file includendo tutte le informazioni rilevanti."
       answer = diagnosi_bot.query(input_query)  
@@ -263,7 +177,7 @@ elif menu == "Prescrizioni":
       page = pdf_file[0]  # recupero la prima pagina
       pix = page.get_pixmap()  # converto la pagina in immagine
       pix.save("prescrizione_image.png")  # salvo l'immagine come PNG
-      st.sidebar.image("prescrizione_image.png", caption="Anteprima file prescrizione")    
+      st.sidebar.image("prescrizione_image.png", caption="Anteprima prescrizione")    
       
     # Salvo il file PDF in un buffer
     with open("prescrizioni.pdf", "wb") as temp_file:
@@ -271,10 +185,8 @@ elif menu == "Prescrizioni":
     
     with st.spinner("Elaborazione in corso..."):
       prescrizioni_bot = App()
-      try:
-        prescrizioni_bot.add("prescrizioni.pdf", data_type='pdf_file')
-      except Exception as e:
-        pass
+      prescrizioni_bot.add("prescrizioni.pdf", data_type='pdf_file')
+
       #input_query = "Di cosa parla il file?"
       input_query = "Riassumi il contenuto del file includendo se esiste il nome del paziente, la patologia sospetta e gli esami prescritti."
       answer = prescrizioni_bot.query(input_query)  
