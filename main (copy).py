@@ -65,11 +65,10 @@ def diagnosi_final_answer(bot, initial_answer):
 def analisi_final_answer(bot, initial_answer):
   follow_up_query = ("Considerando che" + initial_answer + " e che sei un medico con anni di esperienza: "
                      "tieni conto dei risultati acquisiti e applica le buone pratiche. "
-                     "Interpreta le analisi e spiegamele sinteticamente come se fossi una persona di 14 anni. "
-                     "Per ogni esame dimmi sinteticamente cosa significa il suo valore e se è corretto. "
+                     "Interpreta le analisi e spiegamele dettagliatamente come se fossi una persona di 14 anni. "
+                     "Per ogni esame dimmi cosa significa il suo valore e se è corretto. "
                      "In caso di valori non corretti indica quali potrebbero essere le loro cause. "
                      "In caso di valori non corretti, suggerisci ulteriori indagini da fare indicandole chiaramente."
-                     "Concludi riassumendo le ulteriori indagini da fate. "
                      "Prima di chiudere dai delle indicazioni sintetiche su un coretto stile di vita. "
                      "Nella risposta non includere che sei un medico e non includere mai frasi del tipo 'Non riesco a leggere il file per ulteriori indagini specifiche'. "
                      "Rispondi sempre in italiano. Inizia sempre con 'Le analisi sottoposte indicano che:'")
