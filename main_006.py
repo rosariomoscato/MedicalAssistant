@@ -10,7 +10,7 @@ import streamlit as st
 from streamlit_lottie import st_lottie
 
 
-versione = "0.0.7"
+versione = "0.0.6"
 
 # Configurazione Pagina
 st.set_page_config(
